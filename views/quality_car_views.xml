@@ -1,0 +1,270 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="quality_car_report_list">
+            <field name="name">quality.car.report.list</field>
+            <field name="model">quality.car.report</field>
+            <field name="arch" type="xml">
+                <tree decoration-danger="state == 'rejected' or state == 'late'"
+                      decoration-muted="state == 'open'"
+                      decoration-warning="state == 'hold'"
+                      decoration-info="state == 'verification'"
+                      decoration-success="state == 'close'">
+                    <field name="name"/>
+                    <field name="analytic_distribution" widget="analytic_distribution"/>
+                    <field name="subject"/>
+                    <field name="source"/>
+                    <field name="champion_id" widget="many2one_avatar_employee"/>
+                    <field name="date_initiated"/>
+                    <field name="date_due" widget="remaining_days" invisible="state == 'close' or state == 'rejected'"/>
+                    <field name="state" widget="badge"
+                           decoration-danger="state == 'rejected' or state == 'late'"
+                           decoration-muted="state == 'open'"
+                           decoration-warning="state == 'hold'"
+                           decoration-info="state == 'verification'"
+                           decoration-success="state == 'close'"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="quality_car_report_form">
+            <field name="name">quality.car.report.form</field>
+            <field name="model">quality.car.report</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="state" widget="statusbar" statusbar_visible="open,verification,close" readonly="True"/>
+                        <button name="action_champion_approval" type="object" string="Champion Approval" class="oe_highlight" invisible="state in ('rejected', 'close', 'hold', 'verification')"/>
+                        <button name="action_close_car_report" type="object" string="Quality Approval" class="oe_highlight" invisible="state != 'verification'" groups="quality.group_quality_user"/>
+                        <button name="action_remove_hold" type="object" string="Remove Hold" class="oe_highlight" invisible="state != 'hold'"/>
+                        <button name="action_reject_car_report" type="object" string="Reject" invisible="state in ('rejected', 'close', 'hold')" groups="quality.group_quality_user"/>
+                        <button name="action_grant_extension" type="object" string="Grant Extension" invisible="state in ('rejected', 'close', 'hold')" groups="quality.group_quality_manager"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" name="action_view_parent" string="Parent Report" type="object" icon="fa-inbox"  invisible="parent_id == False"/>
+                            <button class="oe_stat_button" type="object" name="action_view_children" string="Create Children Report" icon="fa-umbrella" invisible="count_child_ids != 0"/>
+                            <button class="oe_stat_button" type="object" name="action_view_children" string="Children Report" icon="fa-umbrella" invisible="count_child_ids == 0">
+                                <field name="count_child_ids" string="Children Reports" widget="statinfo"/>
+                            </button>
+                            <button class="oe_stat_button" type="object" name="action_view_ncr_report" string="Non-Conformance Report" icon="fa-bell" invisible="ncr_report_id == False"/>
+                        </div>
+                        <widget name="web_ribbon" title="Rejected" bg_color="bg-danger" invisible="state != 'rejected'"/>
+                        <widget name="web_ribbon" title="Closed" bg_color="bg-success" invisible="state != 'close'"/>
+                        <widget name="web_ribbon" title="On Hold" bg_color="bg-warning" invisible="state != 'hold'"/>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly='1'/>
+                                <field name="subject" readonly="state in ('rejected', 'close', 'hold')" required="True" placeholder="Subject" nolabel="1"/>
+                                <group>
+                                    <field name="responsible_team_ids" readonly="state in ('rejected', 'close', 'hold')" required="True" widget="many2many_tags_avatar"/>
+                                </group>
+                            </h1>
+                        </div>
+                        <div name="on_hold_message" style="text-align: center; color: orange" colspan="3" invisible="state != 'hold'">
+                            <h3 style="color: orange">
+                                This Corrective Action Report is on hold.
+                            </h3>
+                            <p>
+                                Reason for Hold:
+                                <field name="reason_for_hold" readonly="1"/>
+                            </p>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="parent_id" invisible="True"/>
+                                <field name="quality_member_check" invisible="True"/>
+                                <field name="champion_id" required="True" options="{'no_create': True, 'no_create_edit':True}" readonly="state in ('rejected', 'close', 'hold')" widget="many2one_avatar_employee"/>
+                                <field name="analytic_distribution" options="{'no_create': True, 'no_create_edit':True}" readonly="state in ('rejected', 'close', 'hold')" widget="analytic_distribution"/>
+                                <field name="date_close" readonly="True"/>
+                                <field name="ncr_report_id" invisible="True"/>
+                            </group>
+                            <group>
+                                <field name="category" readonly="state in ('rejected', 'close', 'hold')"/>
+                                <field name="date_due" readonly="state in ('rejected', 'close', 'hold')" required="True"/>
+                                <field name="days_open"/>
+                                <field name="originator_id" readonly="state in ('rejected', 'close', 'hold')" required="True" options="{'no_create': True, 'no_create_edit':True}" widget="many2one_avatar_employee"/>
+                            </group>
+                        </group>
+                        <notebook name="notebook1">
+                             <page string="Initiator (Completed by QA)">
+                                <group>
+                                    <group>
+                                        <field name="responsible_department_id" readonly="state in ('rejected', 'close', 'hold') or quality_member_check != True and name != 'New'" required="True" options="{'no_create': True, 'no_create_edit':True}"/>
+                                        <field name="responsible_department_head_id" readonly="True" widget="many2one_avatar_employee"/>
+                                        <field name="date_initiated" readonly="state in ('rejected', 'close', 'hold') or quality_member_check != True and name != 'New'" required="True"/>
+                                    </group>
+                                    <group>
+                                        <field name="source" readonly="state in ('rejected', 'close', 'hold') or quality_member_check != True and name != 'New'"/>
+                                        <field name="partner_id" string='Supplier' readonly="state in ('rejected', 'close', 'hold') or quality_member_check != True and name != 'New'" options="{'no_create': True, 'no_create_edit':True}" invisible="source != 'supplier'" widget="many2one_avatar"/>
+                                        <field name="partner_id" string='Customer' readonly="state in ('rejected', 'close', 'hold') or quality_member_check != True and name != 'New'" options="{'no_create': True, 'no_create_edit':True}" invisible="source != 'customer'" widget="many2one_avatar"/>
+                                        <field name="customer_car_reference" readonly="state in ('rejected', 'close', 'hold') or quality_member_check != True and name != 'New'" invisible="source != 'customer'"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="1. Problem" readonly="quality_member_check != True and name != 'New'">
+                                <field name="description" readonly="state in ('rejected', 'close', 'hold') or quality_member_check != True and name != 'New'" widget="text" placeholder="Description Problem"/>
+                            </page>
+                            <page string="2. Containment Actions">
+                                <field name="containment_action" readonly="state in ('rejected', 'close', 'hold')" widget="text" placeholder="Containment Action"/>
+                            </page>
+                            <page string="3. Root Cause">
+                                <group>
+                                    <group>
+                                        <field name="asset" readonly="state in ('rejected', 'close', 'hold')"/>
+                                    </group>
+                                    <field name="define_root_causes" readonly="state in ('rejected', 'close', 'hold')" widget="text" nolabel="1" placeholder="Root Cause"/>
+                                    <field name="discussion_notes" readonly="state in ('rejected', 'close', 'hold')" widget="text" nolabel="1" placeholder="Comments"/>
+                                </group>
+                            </page>
+                            <page string="4. Corrective Action Selection">
+                                <field name="corrective_action_description" readonly="state in ('rejected', 'close', 'hold')" widget="text" placeholder="Select and Verify Corrective Action"/>
+                            </page>
+                            <page string="5. Corrective Action Implementation">
+                                <field name="car_action_corrective_ids" readonly="state in ('rejected', 'close', 'hold')" context="{'default_type': 'corrective'}"/>
+                                <field name="corrective_action_notes" readonly="state in ('rejected', 'close', 'hold')" widget="text" placeholder="Corrective Action Notes"/>
+                            </page>
+                            <page string="6. Prevention">
+                                <field name="car_action_preventative_ids" readonly="state in ('rejected', 'close', 'hold')" context="{'default_type': 'preventative'}"/>
+                                <field name="recurrence_prevention" readonly="state in ('rejected', 'close', 'hold')" widget="text" placeholder="Recurrence Prevention"/>
+                            </page>
+                            <page string="Hold">
+                                <field name="reason_for_hold" readonly="state in ('rejected', 'close', 'hold')" widget="text" placeholder="Reason For Hold"/>
+                            </page>
+                            <!--                            <page string="Related CAR's" invisible="True">-->
+                            <!--                                <field name="child_ids"/>-->
+                            <!--                            </page>-->
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="quality_car_report_kanban">
+            <field name="name">quality.car.report.kanban</field>
+            <field name="model">quality.car.report</field>
+            <field name="arch" type="xml">
+                <kanban string="quality.car.report" default_group_by="category">
+                    <templates>
+                        <t t-name="kanban-menu" groups="base.group_user">
+                            <div class="container">
+                                <div class="row">
+                                    <button name="action_champion_approval" type="object" string="Champion Approval" class="oe_highlight" invisible="state in ('rejected', 'close', 'hold', 'verification')"/>
+                                    <button name="action_close_car_report" type="object" string="Quality Approval" class="oe_highlight" invisible="state != 'verification'" groups="quality.group_quality_user"/>
+                                    <button name="action_remove_hold" type="object" string="Remove Hold" class="oe_highlight" invisible="state != 'hold'"/>
+                                    <button name="action_reject_car_report" type="object" string="Reject" invisible="state in ('rejected', 'close', 'hold')" groups="quality.group_quality_user"/>
+                                    <button name="action_grant_extension" type="object" string="Grant Extension" invisible="state in ('rejected', 'close', 'hold')" groups="quality.group_quality_manager"/>
+                                    <a class="dropdown-item" role="menuitem" type="edit" invisible="state not in ('rejected', 'close')">Detials</a>
+                                </div>
+                            </div>
+                        </t>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_quality.car.reported oe_kanban_global_click">
+                                <div class="oe_kanban_details">
+                                    <div class="o_kanban_record_top mb-0">
+                                        <div class="o_kanban_record_headings">
+                                            <strong class="o_kanban_record_title">
+                                                <field name="name"/>
+                                            </strong>
+                                        </div>
+                                    </div>
+                                    <div class="o_kanban_record_bottom">
+                                        <div class="oe_kanban_bottom_left">
+                                            <field name="analytic_distribution" widget="analytic_distribution"/>
+                                        </div>
+                                        <div class="oe_kanban_bottom_right">
+                                            <field name="state" widget="badge" decoration-danger="state == 'rejected' or state == 'late'" decoration-muted="state == 'open'" decoration-warning="state == 'hold'" decoration-info="state == 'verification'" decoration-success="state == 'close'"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="quality_car_report_search">
+            <field name="name">quality.car.report.search</field>
+            <field name="model">quality.car.report</field>
+            <field name="priority" eval="15"/>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <filter string="Late" name="late" domain="[('state', '=', 'late')]"/>
+                    <filter string="Open" name="open" domain="[('state', '=', 'open')]"/>
+                    <filter string="Verification" name="verification" domain="[('state', '=', 'verification')]"/>
+                    <filter string="Closed" name="close" domain="[('state', '=', 'close')]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Analytic Account" name="group_by_analytic_account" context="{'group_by':'analytic_account_ids'}"/>
+                        <filter string="Parent" name="group_by_parent_id" context="{'group_by': 'parent_id'}"/>
+                        <filter string="Source" name="group_by_source" context="{'group_by': 'source'}"/>
+                        <filter string="Customer/Supplier" name="group_by_partner_id" context="{'group_by': 'partner_id'}"/>
+                        <filter string="Category" name="group_by_category" context="{'group_by':'category'}"/>
+                        <filter string="Department" name="group_by_department" context="{'group_by':'responsible_department_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="quality_car_report_action_window">
+            <field name="name">Corrective Action Reports</field>
+            <field name="res_model">quality.car.report</field>
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="search_view_id" ref="quality_car_report_search"/>
+            <field name="view_id" ref="quality_car_report_list"/>
+        </record>
+
+        <menuitem id="menu_quality_car_report" name="Corrective Action Reports" parent="quality_control.menu_quality_control" action="AS9100_quality.quality_car_report_action_window" groups="AS9100_quality.group_quality_viewer" sequence="30"/>
+
+        <record model="ir.ui.view" id="quality_car_action_list">
+            <field name="name">quality.car.action.list</field>
+            <field name="model">quality.car.action</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" decoration-danger="state == 'blocked'" decoration-info="state == 'open'" decoration-success="state == 'done'">
+                    <field name="name"/>
+                    <field name="type" column_invisible="True"/>
+                    <field name="description" optional="show"/>
+                    <field name="due_date" optional="show" widget="remaining_days" invisible="state == 'done'"/>
+                    <field name="responsible_employee_id" optional="show" widget="many2one_avatar_employee"/>
+                    <field name="state" optional="show" widget="state_selection"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="quality_car_action_form">
+            <field name="name">quality.car.action.form</field>
+            <field name="model">quality.car.action</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="state" widget="state_selection"/>
+                    </header>
+                    <sheet string="Corrective Action">
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="type" required="True"/>
+                                <field name="car_report_id"/>
+                                <field name="responsible_employee_id" widget="many2one_avatar_employee"/>
+                            </group>
+                            <group>
+                                <field name="due_date"/>
+                                <field name="date_complete"/>
+                            </group>
+                            <field name="description" widget="text"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

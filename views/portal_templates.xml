@@ -1,0 +1,1060 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_my_home_menu_ncr_report" name="Portal Layout: NCR Menu Entries"
+              inherit_id="portal.portal_breadcrumbs">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <t t-if="ncr_report">
+                <li class="breadcrumb-item">
+                    <a t-attf-href="/my/ncrs?{{ keep_query() }}">Non-Conformance Report</a>
+                </li>
+                <li class="breadcrumb-item active">
+                    <t t-esc="ncr_report.name"/>
+                </li>
+            </t>
+            <t t-if="ncr_action">
+                <li class="breadcrumb-item">
+                    <a t-attf-href="/my/ncrs?{{ keep_query() }}">Non-Conformance Report</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a t-attf-href="/my/ncrs/#{ncr_action.ncr_report_id.id}?{{ keep_query() }}" t-esc="ncr_action.ncr_report_id.name"/>
+                </li>
+                <li class="breadcrumb-item active">
+                    <t t-esc="ncr_action.name"/>
+                </li>
+            </t>
+            <t t-if="page_name == 'new_ncr_action'">
+                <li class="breadcrumb-item">
+                    <a t-attf-href="/my/ncrs?{{ keep_query() }}">Non-Conformance Report</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a t-attf-href="/my/ncrs/#{source_ncr.id}?{{ keep_query() }}" t-esc="source_ncr.name"/>
+                </li>
+                <li class="breadcrumb-item active">
+                    New Action
+                </li>
+            </t>
+            <t t-if="page_name == 'new_ncr_report'">
+                <li class="breadcrumb-item">
+                    <a t-attf-href="/my/ncrs?{{ keep_query() }}">Non-Conformance Report</a>
+                </li>
+                <li class="breadcrumb-item active">
+                    New Report
+                </li>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="portal_my_home_ncr_report" name="Show Non-Conformance Reports" customize_show="True"
+              inherit_id="portal.portal_my_home">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_quality_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_client_category" position="before">
+            <div t-if="portal_quality_category_enable" class="o_portal_category row g-2 mt-3"
+                 id="portal_quality_category">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/AS9100_quality/static/img/badge.svg'"/>
+                    <t t-set="text">Follow your Assigned Non-Conformance Reports</t>
+                    <t t-set="title">Non-Conformance Reports</t>
+                    <t t-set="url" t-value="'/my/ncrs'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+            </div>
+        </div>
+    </template>
+
+    <template id="portal_my_ncr_reports" name="Assigned Non-Conformance Reports">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Non-Conformance Report</t>
+                <a href="/my/create/ncr" name="create_ncr" class="btn btn-primary">Create</a>
+            </t>
+            <t t-if="not ncr_reports">
+                <p class="alert alert-success">You have no outstanding Non-Conformance Reports.</p>
+            </t>
+            <t t-if="ncr_reports" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>
+                            <span class='d-none d-md-inline'>Non-Conformance Report #</span>
+                            <span class='d-block d-md-none'>NCR.</span>
+                        </th>
+                        <!--                        <th class="text-end">Analytic Accounts</th>-->
+                        <th class="text-end">State</th>
+                        <th class="text-end">Days Open</th>
+                        <th class="text-end">Disposition</th>
+                    </tr>
+                </thead>
+                <t t-foreach="ncr_reports" t-as="ncr">
+                    <t t-if="ncr.state != 'closed'">
+                        <tr>
+                            <td>
+                                <a t-attf-href="/my/ncrs/#{ncr.id}">
+                                    <span t-field="ncr.name"/>
+                                </a>
+                            </td>
+                            <!--                        <td class="text-end">-->
+                            <!--                            <span t-field="ncr.analytic_distribution" t-options="{'widget': 'analytic_distribution'}"/>-->
+                            <!--                        </td>-->
+                            <td class="text-end">
+                                <t t-if="ncr.state == 'draft'">
+                                    <span class="badge text-bg-info fw-normal o_text_overflow"
+                                          t-att-title="dict(ncr.fields_get(allfields=['state'])['state']['selection'])[ncr.state]"
+                                          t-field="ncr.state"/>
+                                </t>
+                                <t t-if="ncr.state == 'hold'">
+                                    <span class="badge text-bg-warning fw-normal o_text_overflow"
+                                          t-att-title="dict(ncr.fields_get(allfields=['state'])['state']['selection'])[ncr.state]"
+                                          t-field="ncr.state"/>
+                                </t>
+                                <t t-if="ncr.state == 'reconvene'">
+                                    <span class="badge text-bg-danger fw-normal o_text_overflow"
+                                          t-att-title="dict(ncr.fields_get(allfields=['state'])['state']['selection'])[ncr.state]"
+                                          t-field="ncr.state"/>
+                                </t>
+                                <t t-if="ncr.state == 'open'">
+                                    <span class="badge text-bg-primary fw-normal o_text_overflow"
+                                          t-att-title="dict(ncr.fields_get(allfields=['state'])['state']['selection'])[ncr.state]"
+                                          t-field="ncr.state"/>
+                                </t>
+                            </td>
+                            <td class="text-end">
+                                <span t-field="ncr.days_open"/>
+                            </td>
+                            <td class="text-end">
+                                <span t-field="ncr.disposition"/>
+                            </td>
+                        </tr>
+                    </t>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="portal_create_ncr_report" name="Create NCR Report" inherit_id="portal.portal_sidebar" primary="True">
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
+            <form method="post" class="row o_portal_new_action_sidebar">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <t t-call="portal.portal_record_sidebar">
+                    <t t-set="classes" t-value="'col-lg-3 col-xl-4 d-print-none'"/>
+                    <t t-set="entries">
+                        <div class="d-flex form_group justify-content-start align-items-center gap-2">
+                            <h6>
+                                <span>Responsible Engineer*</span>
+                            </h6>
+                            <select name="responsible_engineer_id" class="form-control select" required="True">
+                                <option value="">
+                                    -- Select an Engineer --
+                                </option>
+                                <t t-foreach="employees" t-as="employee">
+                                    <option t-att-value="employee.id">
+                                        <t t-out="employee.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="o_portal_contact_details d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <h6>
+                                    <span>Responsible Employee*</span>
+                                </h6>
+                                <select name="responsible_employee_id" class="form-control select" required="True">
+                                    <option value="">
+                                        -- Select an Employee --
+                                    </option>
+                                    <t t-foreach="employees" t-as="employee">
+                                        <option t-att-value="employee.id">
+                                            <t t-out="employee.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="o_portal_contact_details d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <h6>
+                                    <span>Analytic Account*</span>
+                                </h6>
+                                <select name="analytic_account_ids" class="select form-control" multiple="multiple" required="True">
+                                    <t t-foreach="analytic_accounts" t-as="analytic">
+                                        <option t-att-value="analytic.id" t-esc="analytic.display_name"/>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+                <div class="form_group o_portal_content col-12 col-lg-9 col-xl-8">
+                    <div class="row">
+                        <div id="ncr_report_event_info" class="col-lg-6 mb-4">
+                            <h4 class="mb-1">Event Information</h4>
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <h6>
+                                    <span>Problem Type*</span>
+                                </h6>
+                                <select name="problem_type" class="form-control select" required="True">
+                                    <option value="">
+                                        -- Problem Type --
+                                    </option>
+                                    <t t-foreach="problem_types" t-as="option">
+                                        <option t-att-value="option.value">
+                                            <t t-out="option.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <h6>
+                                    <span>Operational Area*</span>
+                                </h6>
+                                <select name="operational_area" class="form-control select" required="True">
+                                    <option value="">
+                                        -- Operational Area --
+                                    </option>
+                                    <t t-foreach="operational_areas" t-as="option">
+                                        <option t-att-value="option.value">
+                                            <t t-out="option.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <h6>
+                                    <span>Is Condition*</span>
+                                </h6>
+                                <input type="text" class="text-wrap form-control" name="description" required="True"/>
+                            </div>
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <h6>
+                                    <span class="text-muted">Should Be Condition</span>
+                                </h6>
+                                <input type="text" name="expected_condition" class="text-wrap form-control"/>
+                            </div>
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <h6>
+                                    <span class="text-muted">Map #</span>
+                                </h6>
+                                <input type="text" name="map_number" class="text-wrap form-control"/>
+                            </div>
+                        </div>
+                        <div id="ncr_report_product_info" class="col-lg-6 mb-4">
+                            <h4 class="mb-1">Product Information</h4>
+                            <div class="d-flex justify-content-start align-items-center gap-2 lot_domain" t-on-click="_lotDomain">
+                                <h6>
+                                    <span>Product*</span>
+                                </h6>
+                                <select id="product_id" name="product_id" class="form-control select" required="True">
+                                    <option value="">
+                                        -- Select a Product --
+                                    </option>
+                                    <t t-foreach="products" t-as="product">
+                                        <option t-att-value="product.id">
+                                            <t t-out="product.display_name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <h6>
+                                    <small class="text-muted">Serial/Lots</small>
+                                </h6>
+                                <select id="lot_ids" name="lot_ids" class="select form-control" multiple="multiple"/>
+                            </div>
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <h6>
+                                    <small class="text-muted">Quantity</small>
+                                </h6>
+                                <input type="float" class="form-control" name="quantity" id="quantity"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <h4 class="mb-1">Other Information</h4>
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <h6>
+                                    <span class="text-muted">Vendor</span>
+                                </h6>
+                                <select name="partner_id" class="form-control select">
+                                    <option value="">
+                                        -- Select a Vendor --
+                                    </option>
+                                    <t t-foreach="partners" t-as="partner">
+                                        <option t-att-value="partner.id">
+                                            <t t-out="partner.complete_name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <h6>
+                                    <span class="text-muted">Work Center</span>
+                                </h6>
+                                <select name="workcenter_id" class="form-control select">
+                                    <option value="">
+                                        -- Select an Work Center --
+                                    </option>
+                                    <t t-foreach="workcenters" t-as="workcenter">
+                                        <option t-att-value="workcenter.id">
+                                            <t t-out="workcenter.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <h6>
+                                    <span class="text-muted">Purchase Order</span>
+                                </h6>
+                                <select name="purchase_order_id" class="form-control select">
+                                    <option value="">
+                                        -- Select a Purchase Order--
+                                    </option>
+                                    <t t-foreach="purchase_records" t-as="record">
+                                        <option t-att-value="record.id">
+                                            <t t-out="record.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-10">
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </div>
+                </div>
+            </form>
+        </xpath>
+    </template>
+
+    <template id="portal_my_ncr_report" name="Non-Conformance Report" inherit_id="portal.portal_sidebar" primary="True">
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
+            <t t-set="o_portal_fullwidth_alert" groups="AS9100_quality.group_quality_viewer">
+                <t t-call="portal.portal_back_in_edit_mode">
+                    <t t-set="backend_url"
+                       t-value="'/web#model=%s&amp;id=%s&amp;action=%s&amp;view_type=form' % (ncr_report._name, ncr_report.id, ncr_report.env.ref('AS9100_quality.quality_ncr_report_action_window').id)"/>
+                </t>
+            </t>
+
+            <div class="row o_portal_quality_sidebar">
+                <!-- Sidebar -->
+                <t t-call="portal.portal_record_sidebar">
+                    <t t-set="classes" t-value="'col-lg-3 col-xl-4 d-print-none'"/>
+                    <!--                    <t t-set="title">-->
+                    <!--                        <h2 t-field="ncr_report.analytic_distribution" t-options="{'widget': 'analytic_distribution'}"/>-->
+                    <!--                    </t>-->
+                    <t t-set="entries">
+                        <div class="d-flex flex-column gap-4">
+                            <div class="flex-grow-1 ncr_report-md-last ncr_report-lg-first">
+                                <div class="o_download_pdf btn-toolbar flex-sm-nowrap">
+                                    <div class="btn-group flex-grow-1 mb-1">
+                                        <a class="btn btn-secondary btn-block o_print_btn o_portal_ncr_report"
+                                           t-att-href="ncr_report.get_portal_url(report_type='pdf')"
+                                           id="print_ncr_report" title="View Details"
+                                           target="_blank">
+                                            <i class="fa fa-print"/>
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_portal_contact_details d-flex flex-column gap-2">
+                                <div class="d-flex justify-content-start align-items-center gap-2">
+                                    <t t-if="ncr_report.create_uid.avatar_128">
+                                        <img class="o_avatar o_portal_contact_img rounded"
+                                             t-att-src="image_data_uri(ncr_report.create_uid.avatar_128)"
+                                             alt="Contact"/>
+                                    </t>
+                                    <div>
+                                        <h6>
+                                            <small class="text-muted">Originator</small>
+                                        </h6>
+                                        <h6 class="mb-0" t-out="ncr_report.create_uid.name"/>
+                                        <a href="#discussion" class="small fw-bold">Send message</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_portal_contact_details d-flex flex-column gap-2">
+                                <div class="d-flex justify-content-start align-items-center gap-2">
+                                    <t t-if="ncr_report.responsible_engineer_id.avatar_128">
+                                        <img class="o_avatar o_portal_contact_img rounded"
+                                             t-att-src="image_data_uri(ncr_report.responsible_engineer_id.avatar_128)"
+                                             alt="Contact"/>
+                                    </t>
+                                    <div>
+                                        <h6>
+                                            <small class="text-muted">Responsible Engineer</small>
+                                        </h6>
+                                        <h6 class="mb-0" t-out="ncr_report.responsible_engineer_id.name"/>
+                                        <a href="#discussion" class="small fw-bold">Send message</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_portal_contact_details d-flex flex-column gap-2">
+                                <div class="d-flex justify-content-start align-items-center gap-2">
+                                    <t t-if="ncr_report.responsible_employee_id.avatar_128">
+                                        <img class="o_avatar o_portal_contact_img rounded"
+                                             t-att-src="image_data_uri(ncr_report.responsible_employee_id.avatar_128)"
+                                             alt="Contact"/>
+                                    </t>
+                                    <div>
+                                        <h6>
+                                            <small class="text-muted">Responsible Employee</small>
+                                        </h6>
+                                        <h6 class="mb-0" t-out="ncr_report.responsible_employee_id.name"/>
+                                        <a href="#discussion" class="small fw-bold">Send message</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <t t-if="ncr_report.partner_id">
+                                <div class="o_portal_contact_details d-flex flex-column gap-2">
+                                    <div class="d-flex justify-content-start align-items-center gap-2">
+                                        <t t-if="ncr_report.partner_id.avatar_128">
+                                            <img class="o_avatar o_portal_contact_img rounded"
+                                                 t-att-src="image_data_uri(ncr_report.partner_id.avatar_128)"
+                                                 alt="Contact"/>
+                                        </t>
+                                        <div>
+                                            <h6>
+                                                <small class="text-muted">Vendor</small>
+                                            </h6>
+                                            <h6 class="mb-0" t-out="ncr_report.partner_id.name"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+                <!-- Page content -->
+                <div id="ncr_report_content" class="o_portal_content col-12 col-lg-9 col-xl-8">
+                    <!-- status messages -->
+                    <div t-if="ncr_report.state == 'closed'" class="alert alert-success d-print-none" role="alert">
+                        <strong>This Non-Conformance Report has been closed.</strong>
+                    </div>
+                    <!-- main content -->
+                    <div id="portal_ncr_report_content">
+                        <div t-call="AS9100_quality.ncr_report_portal_content"/>
+                    </div>
+                    <!-- chatter -->
+                    <hr/>
+                    <div id="ncr_report_communication">
+                        <h3>Communication history</h3>
+                        <t t-call="portal.message_thread">
+                            <t t-set="hash" t-value="message_post_hash"/>
+                            <t t-set="pid" t-value="message_post_pid"/>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="ncr_report_portal_content" name="Non-Conformance Report Portal Content">
+        <div id="introduction" class="mt-5 mt-lg-0 pb-2 pt-0">
+            <div class="row justify-content-between align-items-end mb-3">
+                <div class="col-12 col-md-9">
+                    <div class="d-flex align-items-center gap-2">
+                        <h3 t-field="ncr_report.name" class="text-truncate my-0"/>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <t t-if="ncr_report.state == 'draft'">
+                        <span class="badge text-bg-info fw-normal o_text_overflow"
+                              t-att-title="dict(ncr_report.fields_get(allfields=['state'])['state']['selection'])[ncr_report.state]"
+                              t-field="ncr_report.state"/>
+                    </t>
+                    <t t-if="ncr_report.state == 'hold'">
+                        <span class="badge text-bg-warning fw-normal o_text_overflow"
+                              t-att-title="dict(ncr_report.fields_get(allfields=['state'])['state']['selection'])[ncr_report.state]"
+                              t-field="ncr_report.state"/>
+                    </t>
+                    <t t-if="ncr_report.state == 'reconvene'">
+                        <span class="badge text-bg-danger fw-normal o_text_overflow"
+                              t-att-title="dict(ncr_report.fields_get(allfields=['state'])['state']['selection'])[ncr_report.state]"
+                              t-field="ncr_report.state"/>
+                    </t>
+                    <t t-if="ncr_report.state == 'open'">
+                        <span class="badge text-bg-primary fw-normal o_text_overflow"
+                              t-att-title="dict(ncr_report.fields_get(allfields=['state'])['state']['selection'])[ncr_report.state]"
+                              t-field="ncr_report.state"/>
+                    </t>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="row">
+                <!-- Information -->
+                <div id="ncr_report_event_info" class="col-lg-6 mb-4">
+                    <span id="ncr_report_event_info_title">
+                        <h4 class="mb-1">Event Information</h4>
+                        <hr class="mt-1 mb-2"/>
+                    </span>
+                    <table class="table table-borderless table-sm" style="table-layout: fixed;">
+                        <tbody style="white-space:nowrap" id="ncr_report_event_info_table">
+                            <tr>
+                                <th class="ps-0 pb-0">Problem Type:</th>
+                                <td class="text-wrap">
+                                    <span t-field="ncr_report.problem_type"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 pb-0">Operational Area:</th>
+                                <td class="text-wrap">
+                                    <span t-field="ncr_report.operational_area"/>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th class="ps-0 pb-0">Is Condition:</th>
+                                <td class="text-wrap  o_portal_autosave_char form-control" contenteditable="True"
+                                    t-att-data-recordid="ncr_report.id" id="description"
+                                    data-model="quality.ncr.report">
+                                    <p t-field="ncr_report.description"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 pb-0">Should Be Condition:</th>
+                                <td class="text-wrap">
+                                    <p t-field="ncr_report.expected_condition"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 pb-0">MAP #:</th>
+                                <td class="text-wrap">
+                                    <span t-field="ncr_report.map_number"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--Product Info-->
+                <div id="ncr_report_product_info" class="col-lg-6 mb-4">
+                    <span id="ncr_report_product_info_title">
+                        <h4 class="mb-1">Product Information</h4>
+                        <hr class="mt-1 mb-2"/>
+                    </span>
+                    <table class="table table-borderless table-sm" style="table-layout: fixed;">
+                        <tbody style="white-space:nowrap" id="ncr_report_product_info_table">
+                            <tr>
+                                <th>Product:</th>
+                                <td class="text-wrap">
+                                    <span t-field="ncr_report.product_id"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Serial/Lots:</th>
+                                <td class="text-wrap">
+                                    <span t-field="ncr_report.lot_ids"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Quantity:</th>
+                                <td class="text-wrap">
+                                    <span t-field="ncr_report.quantity"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Total Cost:</th>
+                                <td class="text-wrap">
+                                    <span t-field="ncr_report.total_cost" t-options="{'widget': 'monetary'}"/>
+                                </td>
+                            </tr>
+                            <tr t-if="ncr_report.workcenter_id">
+                                <th>Work Center:</th>
+                                <td class="text-wrap">
+                                    <span t-field="ncr_report.workcenter_id"/>
+                                </td>
+                            </tr>
+                            <tr t-if="ncr_report.purchase_order_id">
+                                <th>Purchase Order:</th>
+                                <td class="text-wrap">
+                                    <span t-field="ncr_report.purchase_order_id"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <!--Disposition-->
+                <div id="ncr_report_disposition" class="col-lg-6 mb-4">
+                    <span id="ncr_report_disposition_title">
+                        <h4 class="mb-1">Disposition</h4>
+                        <hr class="mt-1 mb-2"/>
+                    </span>
+                    <table class="table table-borderless table-sm" style="table-layout: fixed;">
+                        <tbody style="white-space:nowrap" id="ncr_report_disposition_table">
+                            <tr>
+                                <!--                                ADD a select with auto save to see if i can get this working.-->
+                                <th class="ps-0 pb-0">Classification:</th>
+                                <td class="text-wrap">
+                                    <select id="classification"
+                                            class="form-control o_portal_autosave o_portal_select_autosave"
+                                            t-att-data-recordid="ncr_report.id" data-model="quality.ncr.report">
+                                        <option value="False">
+                                            -- Select a Classification --
+                                        </option>
+                                        <t t-foreach="classification" t-as="option">
+                                            <t t-if="option.value == ncr_report.classification">
+                                                <option t-att-value="option.value" selected="Ture">
+                                                    <t t-out="option.name"/>
+                                                </option>
+                                            </t>
+                                            <t t-else="">
+                                                <option t-att-value="option.value">
+                                                    <t t-out="option.name"/>
+                                                </option>
+                                            </t>
+                                        </t>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 pb-0">Disposition:</th>
+                                <td class="text-wrap">
+                                    <select id="disposition"
+                                            class="form-control o_portal_autosave o_portal_select_autosave"
+                                            t-att-data-recordid="ncr_report.id" data-model="quality.ncr.report">
+                                        <option value="False">
+                                            -- Select a Disposition --
+                                        </option>
+                                        <t t-foreach="disposition" t-as="option">
+                                            <t t-if="option.value == ncr_report.disposition">
+                                                <option t-att-value="option.value" selected="True">
+                                                    <t t-out="option.name"/>
+                                                </option>
+                                            </t>
+                                            <t t-else="">
+                                                <option t-att-value="option.value">
+                                                    <t t-out="option.name"/>
+                                                </option>
+                                            </t>
+                                        </t>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 pb-0">Justification:</th>
+                                <td class="w-100 pb-0 text-wrap o_portal_autosave_char form-control"
+                                    contenteditable="True" t-att-data-recordid="ncr_report.id" id="justification"
+                                    data-model="quality.ncr.report">
+                                    <t t-if="not ncr_report.justification">
+                                        <p id="justification" class="text-muted">Justification...</p>
+                                    </t>
+                                    <t t-else="">
+                                        <p id="justification" t-esc="ncr_report.justification"/>
+                                    </t>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 pb-0">Description:</th>
+                                <td class="w-100 pb-0 text-wrap o_portal_autosave_char form-control"
+                                    contenteditable="True" t-att-data-recordid="ncr_report.id" id="disposition_text"
+                                    data-model="quality.ncr.report">
+                                    <t t-if="not ncr_report.disposition_text">
+                                        <p id="disposition_text" class="text-muted">Description...</p>
+                                    </t>
+                                    <t t-else="">
+                                        <p id="disposition_text" t-esc="ncr_report.disposition_text"/>
+                                    </t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-lg-6 table-responsive">
+                    <span>
+                        <h4 class="mb-1">Approvals</h4>
+                    </span>
+                    <table class="table table-sm" id="ncr_approval_ids">
+                        <thead class="bg-50">
+                            <tr>
+                                <th class="text-start">Approval Type</th>
+                                <th class="text-end">Approved</th>
+                                <th class="text-start">Approved By</th>
+                                <th>
+                                    <button type="submit" class="btn btn-secondary o_portal_create_ncr_approval"
+                                            t-att-data-ncrid="ncr_report.id">
+                                        Add
+                                    </button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="ncr_report.ncr_approval_ids" t-as="approvals">
+                                <tr>
+                                    <td>
+                                        <span t-field="approvals.approval_type"/>
+                                    </td>
+                                    <td align="center">
+                                        <span id="is_approval"
+                                              t-attf-class="button o_portal_approve_ncr_approval #{'fa fa-check-circle text-success' if approvals.is_approved else 'o_status rounded-circle'}"
+                                              t-att-data-approvalid="approvals.id"
+                                              t-att-data-approval="approvals.is_approved"/>
+                                    </td>
+                                    <td>
+                                        <t t-if="approvals.approved_by_id.avatar_128">
+                                            <img class="o_avatar o_portal_contact_img rounded"
+                                                 t-att-src="image_data_uri(approvals.approved_by_id.avatar_128)"
+                                                 alt="Contact"/>
+                                        </t>
+                                        <span t-field="approvals.approved_by_id"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table t-att-data-ncr-id="ncr_report.id" t-att-data-token="ncr_report.access_token"
+                       class="table table-sm" id="ncr_action_ids">
+                    <thead class="bg-50">
+                        <tr>
+                            <th class="text-start">Action #</th>
+                            <th class="text-start">Description</th>
+                            <th class="text-start">Responsible Department</th>
+                            <th class="text-start">Responsible Employee</th>
+                            <th>State</th>
+                            <th>Days Open</th>
+                            <th>
+                                <a class="btn btn-secondary" t-attf-href="/my/ncrs/#{ncr_report.id}/create/action">Add
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="ncr_report.ncr_action_ids" t-as="line">
+                            <tr>
+                                <td>
+                                    <span t-field="line.name"/>
+                                </td>
+                                <td>
+                                    <span t-field="line.short_description"/>
+                                </td>
+                                <td>
+                                    <span t-field="line.responsible_department_id"/>
+                                </td>
+                                <td>
+                                    <t t-if="line.responsible_employee_id.avatar_128">
+                                        <img class="o_avatar o_portal_contact_img rounded"
+                                             t-att-src="image_data_uri(line.responsible_employee_id.avatar_128)"
+                                             alt="Contact"/>
+                                    </t>
+                                    <span t-field="line.responsible_employee_id"/>
+                                </td>
+                                <td>
+                                    <t t-if="line.state == 'done'">
+                                        <span class="badge text-bg-success fw-normal o_text_overflow"
+                                              t-att-title="dict(line.fields_get(allfields=['state'])['state']['selection'])[line.state]"
+                                              t-field="line.state"/>
+                                    </t>
+                                    <t t-if="line.state == 'warning'">
+                                        <span class="badge text-bg-warning fw-normal o_text_overflow"
+                                              t-att-title="dict(line.fields_get(allfields=['state'])['state']['selection'])[line.state]"
+                                              t-field="line.state"/>
+                                    </t>
+                                    <t t-if="line.state == 'draft'">
+                                        <span class="badge text-bg-primary fw-normal o_text_overflow"
+                                              t-att-title="dict(line.fields_get(allfields=['state'])['state']['selection'])[line.state]"
+                                              t-field="line.state"/>
+                                    </t>
+                                </td>
+                                <td>
+                                    <t t-if="line.state != 'done'">
+                                        <span t-field="line.days_open"/>
+                                    </t>
+                                </td>
+                                <td>
+                                    <t t-if="current_employee_id == line.responsible_employee_id or current_employee_id == line.create_uid.employee_id">
+                                        <a t-attf-href="/my/ncrs/#{ncr_report.id}/action/#{line.id}">Edit</a>
+                                    </t>
+                                    <t t-else="1">
+                                        <a t-attf-href="/my/ncrs/#{ncr_report.id}/action/#{line.id}">View</a>
+                                    </t>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </template>
+
+    <template id="portal_ncr_action" name="Non-Conformance Action" inherit_id="portal.portal_sidebar" primary="True">
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
+            <div class="row o_portal_action_sidebar">
+                <!-- Sidebar -->
+                <t t-call="portal.portal_record_sidebar">
+                    <t t-set="classes" t-value="'col-lg-3 col-xl-4 d-print-none'"/>
+                    <t t-set="entries">
+                        <div>
+                            <t t-if="ncr_action.state != 'done'">
+                                <h6>Days Opened:
+                                    <span t-field="ncr_action.days_open"/>
+                                </h6>
+                            </t>
+                            <h6>Date Opened:
+                                <span t-esc="ncr_action.date_open" t-options='{"widget": "date"}'/>
+                            </h6>
+                            <h6>Date Closed:
+                                <span t-out="ncr_action.date_close" t-options='{"widget": "date"}'/>
+                            </h6>
+                        </div>
+                        <br/>
+                        <div class="o_portal_contact_details d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <div>
+                                    <h6>
+                                        <small class="text-muted">Responsible Department</small>
+                                    </h6>
+                                    <h6 class="mb-0" t-out="ncr_action.responsible_department_id.name"/>
+                                </div>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="o_portal_contact_details d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <t t-if="ncr_action.responsible_department_head_id.avatar_128">
+                                    <img class="o_avatar o_portal_contact_img rounded"
+                                         t-att-src="image_data_uri(ncr_action.responsible_department_head_id.avatar_128)"
+                                         alt="Contact"/>
+                                </t>
+                                <div>
+                                    <h6>
+                                        <small class="text-muted">Department Head</small>
+                                    </h6>
+                                    <h6 class="mb-0" t-out="ncr_action.responsible_department_head_id.name"/>
+                                    <a href="#discussion" class="small fw-bold">Send message</a>
+                                </div>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="o_portal_contact_details d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <t t-if="ncr_action.responsible_employee_id.avatar_128">
+                                    <img class="o_avatar o_portal_contact_img rounded"
+                                         t-att-src="image_data_uri(ncr_action.responsible_employee_id.avatar_128)"
+                                         alt="Contact"/>
+                                </t>
+                                <div>
+                                    <h6>
+                                        <small class="text-muted">Responsible Employee</small>
+                                    </h6>
+                                    <h6 class="mb-0" t-out="ncr_action.responsible_employee_id.name"/>
+                                    <a href="#discussion" class="small fw-bold">Send message</a>
+                                </div>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="o_portal_contact_details d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <t t-if="ncr_action.rework_repair_qa_employee_id.avatar_128">
+                                    <img class="o_avatar o_portal_contact_img rounded"
+                                         t-att-src="image_data_uri(ncr_action.rework_repair_qa_employee_id.avatar_128)"
+                                         alt="Contact"/>
+                                </t>
+                                <div>
+                                    <h6>
+                                        <small class="text-muted">Rework/Repair QA By</small>
+                                    </h6>
+                                    <t t-if="not ncr_action.rework_repair_qa_employee_id ">
+                                        <select id="rework_repair_qa_employee_id"
+                                                class="form-control o_portal_autosave o_portal_one2many_autosave"
+                                                t-att-data-recordid="ncr_action.id" data-model="quality.ncr.action">
+                                            <option value="False">
+                                                -- Select an employee --
+                                            </option>
+                                            <t t-foreach="employees" t-as="employee">
+                                                <option t-att-value="employee.id">
+                                                    <t t-out="employee.name"/>
+                                                </option>
+                                            </t>
+                                        </select>
+                                    </t>
+                                    <h6 class="mb-0" t-out="ncr_action.rework_repair_qa_employee_id.name"/>
+                                    <a href="#discussion" class="small fw-bold">Send message</a>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+                <!-- Page content -->
+                <div id="ncr_action_content" class="o_portal_content col-12 col-lg-9 col-xl-8">
+                    <!-- main content -->
+                    <div id="portal_ncr_action_content">
+                        <t t-call="AS9100_quality.ncr_action_portal_content"/>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="ncr_action_portal_content" name="Non-Conformance Action Portal Content">
+        <div id="introduction" class="mt-5 mt-lg-0 pb-2 pt-0">
+            <div class="row justify-content-between align-items-end mb-3">
+                <div class="col-12 col-md-9">
+                    <div class="d-flex align-items-center gap-2">
+                        <h3 t-field="ncr_action.name">:</h3>
+                        <h3 t-field="ncr_action.short_description"/>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <t t-if="ncr_action.state == 'draft'">
+                        <span class="badge text-bg-info fw-normal o_text_overflow"
+                              t-att-title="dict(ncr_action.fields_get(allfields=['state'])['state']['selection'])[ncr_action.state]"
+                              t-field="ncr_action.state"/>
+                    </t>
+                    <t t-if="ncr_action.state == 'warning'">
+                        <span class="badge text-bg-warning fw-normal o_text_overflow"
+                              t-att-title="dict(ncr_action.fields_get(allfields=['state'])['state']['selection'])[ncr_action.state]"
+                              t-field="ncr_action.state"/>
+                    </t>
+                    <t t-if="ncr_action.state == 'done'">
+                        <span class="badge text-bg-success fw-normal o_text_overflow"
+                              t-att-title="dict(ncr_action.fields_get(allfields=['state'])['state']['selection'])[ncr_action.state]"
+                              t-field="ncr_action.state"/>
+                    </t>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div>
+                <div id="ncr_action_details">
+                    <t t-if="(current_employee_id == ncr_action.responsible_employee_id or current_employee_id == ncr_action.create_uid.employee_id) and ncr_action.ncr_report_id.state != 'closed'">
+                        <table class="table table-borderless table-sm" style="table-layout: fixed;">
+                            <tbody style="white-space:nowrap">
+                                <tr>
+                                    <th style="width: 20%;">Work Instructions:</th>
+                                    <td class="text-wrap o_portal_autosave_char form-control" contenteditable="True"
+                                        t-att-data-recordid="ncr_action.id" id="work_instructions"
+                                        data-model="quality.ncr.action">
+                                        <p t-esc="ncr_action.work_instructions"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th style="width: 20%;">Work Completed:</th>
+                                    <td class="text-wrap o_portal_autosave_char form-control" contenteditable="True"
+                                        t-att-data-recordid="ncr_action.id" id="work_completed"
+                                        data-model="quality.ncr.action">
+                                        <p t-esc="ncr_action.work_completed"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th style="width: 20%;">Suggested Actions:</th>
+                                    <td class="text-wrap o_portal_autosave_char form-control" contenteditable="True"
+                                        t-att-data-recordid="ncr_action.id" id="expected_condition"
+                                        data-model="quality.ncr.action">
+                                        <p t-esc="ncr_action.expected_condition"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </t>
+                    <t t-else="1">
+                        <table class="table table-borderless table-sm" style="table-layout: fixed;">
+                            <tbody style="white-space:nowrap">
+                                <tr>
+                                    <th style="width: 20%;">Work Instructions:</th>
+                                    <td class="text-wrap form-control">
+                                        <p t-esc="ncr_action.work_instructions"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th style="width: 20%;">Work Completed:</th>
+                                    <td class="text-wrap form-control">
+                                        <p t-esc="ncr_action.work_completed"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th style="width: 20%;">Suggested Actions:</th>
+                                    <td class="text-wrap form-control">
+                                        <p t-esc="ncr_action.expected_condition"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </t>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="portal_create_ncr_action" name="Create NCR Action" inherit_id="portal.portal_sidebar" primary="True">
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
+            <form method="post" class="row o_portal_new_action_sidebar">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <t t-call="portal.portal_record_sidebar">
+                    <t t-set="classes" t-value="'col-lg-3 col-xl-4 d-print-none'"/>
+                    <t t-set="entries">
+                        <div class="d-flex form_group justify-content-start align-items-center gap-2">
+                            <h6>
+                                <small class="text-muted">Responsible Department</small>
+                            </h6>
+                            <select name="responsible_department_id" class="form-control" required="True">
+                                <option value="False">
+                                    -- Select a Department --
+                                </option>
+                                <t t-foreach="departments" t-as="department">
+                                    <option t-att-value="department.id">
+                                        <t t-out="department.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="o_portal_contact_details d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <h6>
+                                    <small class="text-muted">Responsible Employee</small>
+                                </h6>
+                                <select name="responsible_employee_id" class="form-control" required="True">
+                                    <option value="False">
+                                        -- Select an Employee --
+                                    </option>
+                                    <t t-foreach="employees" t-as="employee">
+                                        <option t-att-value="employee.id">
+                                            <t t-out="employee.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="o_portal_contact_details d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-start align-items-center gap-2">
+                                <h6>
+                                    <small class="text-muted">Rework/Repair QA By</small>
+                                </h6>
+                                <select name="rework_repair_qa_employee_id" class="form-control">
+                                    <option value="False">
+                                        -- Select an Employee --
+                                    </option>
+                                    <t t-foreach="employees" t-as="employee">
+                                        <option t-att-value="employee.id">
+                                            <t t-out="employee.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+                <div class="form_group o_portal_content col-12 col-lg-9 col-xl-8">
+                    <div>
+                        <label for="short_description">Description:</label>
+                        <input type="text" name="short_description" required="True" class="text-wrap form-control"/>
+
+                        <label for="work_instructions">Work Instructions:</label>
+                        <input type="text" name="work_instructions" required="True" class="text-wrap form-control"/>
+
+                        <label for="expected_condition">Suggested Actions:</label>
+                        <input type="text" name="expected_condition" class="text-wrap form-control"/>
+                    </div>
+                    <div class="col-sm-10">
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </div>
+                </div>
+            </form>
+        </xpath>
+    </template>
+</odoo>

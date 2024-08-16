@@ -1,0 +1,7 @@
+<odoo>
+    <data>
+        <record id="quality_department" model="hr.department">
+            <field name="name">Quality</field>
+        </record>
+    </data>
+</odoo>

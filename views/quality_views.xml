@@ -1,0 +1,34 @@
+<odoo>
+    <data>
+<!--       Add quality Viewer to the menu so they can see the Quality information.-->
+        <record model="ir.ui.menu" id="quality_control.menu_quality_root">
+            <field name="groups_id" eval="[(4, ref('AS9100_quality.group_quality_viewer'))]"/>
+        </record>
+
+<!--        Remove the Alert Stages as we won't be using them.-->
+        <menuitem id="quality_control.menu_quality_config_alert_stage" active="False"/>
+        <menuitem id="quality_control.menu_quality_dashboard" active="False"/>
+
+        <record id="quality_check_view_form_AS9100_quality" model="ir.ui.view">
+            <field name="name">quality.check.view.form.AS9100_quality</field>
+            <field name="model">quality.check</field>
+            <field name="inherit_id" ref="quality_control.quality_check_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='do_alert']" position="replace">
+                    <button name="action_see_ncr_reports" type="object" invisible="ncr_report_ids or quality_state != 'pass'" string="Create Non-Conformance Report" data-hotkey="g"/>
+                </xpath>
+                <xpath expr="//button[@name='do_alert']" position="replace">
+                    <button name="action_see_ncr_reports" type="object" class="btn-primary" invisible="ncr_report_ids or quality_state != 'fail'" string="Create Non-Conformance Report" data-hotkey="g"/>
+                </xpath>
+                <xpath expr="//button[@name='action_see_alerts']" position="replace">
+                    <button name="action_see_ncr_reports" icon="fa-bell" type="object" class="oe_stat_button" invisible="ncr_report_count == 0">
+                        <field name="ncr_report_count" string="Non-Conformance Reports" widget="statinfo"/>
+                    </button>
+                </xpath>
+                <xpath expr="//field[@name='alert_ids']" position="after">
+                    <field name="ncr_report_ids" invisible="True"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

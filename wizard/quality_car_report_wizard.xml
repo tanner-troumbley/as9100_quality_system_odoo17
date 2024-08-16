@@ -1,0 +1,45 @@
+<odoo>
+    <data>
+        <record id="quality_car_report_wizard_form" model="ir.ui.view">
+            <field name="name">quality.car.report.wizard.form</field>
+            <field name="model">quality.car.report.wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <div class="oe_title">
+                        <h1>
+                            <field name='subject' required='True' placeholder="Subject" nolabel="1"/>
+                            <group>
+                                <field name="responsible_team_ids" required="True" widget="many2many_tags_avatar"/>
+                            </group>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name='champion_id' required='True' widget="many2one_avatar_employee"/>
+                            <field name='responsible_department_id' required='True'/>
+                            <field name='ncr_report_id' invisible='True'/>
+                        </group>
+                        <group>
+                            <field name='analytic_distribution' widget="analytic_distribution"/>
+                            <field name="source"/>
+                            <field name="partner_id" string='Supplier' options="{'no_create': True, 'no_create_edit':True}" invisible="source != 'supplier'" widget="many2one_avatar"/>
+                            <field name="partner_id" string='Customer' options="{'no_create': True, 'no_create_edit':True}" invisible="source != 'customer'" widget="many2one_avatar"/>
+                        </group>
+                    </group>
+                    <field name='description' required='True' placeholder="Description" nolabel="1"/>
+                    <footer>
+                        <button string='Create' name='create_car' type='object' class='btn-primary'/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="quality_car_report_wizard_action" model="ir.actions.act_window">
+            <field name="name">Open Corrective Action Report Wizard</field>
+            <field name="res_model">quality.car.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

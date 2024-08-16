@@ -1,0 +1,27 @@
+<odoo>
+    <data>
+        <record id="mrp_production_view_form_inherit_AS9100_quality" model="ir.ui.view">
+            <field name="name">mrp.production.view.form.inherit.AS9100_quality</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="quality_mrp.mrp_production_view_form_inherit_quality"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='button_quality_alert']" position="replace">
+                    <button name="button_quality_ncr_report" type="object" string="Non-Conformance Report" context="{'default_production_id': id}" invisible="not check_ids or quality_check_fail and ncr_report_count == 0"/>
+                </xpath>
+                <xpath expr="//button[@name='button_quality_alert']" position="replace">
+                    <button name="button_quality_ncr_report" type="object" string="Non-Conformance Report" context="{'default_production_id': id}" class="oe_highlight" invisible="not quality_check_fail or ncr_report_count != 0"/>
+                </xpath>
+                <xpath expr="//button[@name='open_quality_alert_mo']" position="replace">
+                    <button name="open_nrc_report_mrp_production" type="object" class="oe_stat_button" icon="fa-bell" invisible="ncr_report_count == 0" context="{'search_default_production_id': id}">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="ncr_report_count"/>
+                            </span>
+                            <span class="o_stat_text">Non-Conformance Reports</span>
+                        </div>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

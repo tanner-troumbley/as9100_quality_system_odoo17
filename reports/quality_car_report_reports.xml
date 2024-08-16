@@ -1,0 +1,274 @@
+<odoo>
+    <data>
+                
+        <record model="ir.actions.report" id="car_report">
+            <field name="name">Corrective Action Report</field>
+            <field name="model">quality.car.report</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">AS9100_quality.report_car_report</field>
+            <field name="print_report_name">'Corrective Action Report - %s' % (object.name)</field>
+            <field name="attachment">'Corrective Action Report - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="AS9100_quality.model_quality_car_report"/>
+            <field name="binding_type">report</field>
+        </record>
+        
+        <template id="report_car_report">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                          <div class="oe_structure">
+                            <div class="row">
+                                <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                    <span> </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4">
+                                    <h1><strong><span t-field="doc.name"/></strong></h1>
+                                    <h4>Corrective Action Report</h4>
+                                </div>
+                                <div class="col-4">
+                                    <div>
+                                        <span>
+                                            <strong>Champion: </strong>
+                                        </span>
+                                        <span t-field="doc.champion_id"/>
+                                    </div>
+                                    <div>
+                                        <span>
+                                            <strong>Analytic Account: </strong>
+                                        </span>
+                                        <span t-field="doc.analytic_account_ids"/>
+                                    </div>
+                                    <div>
+                                        <span>
+                                            <strong>NCR Reference: </strong>
+                                        </span>
+                                        <span t-field="doc.ncr_report_id"/>
+                                    </div>
+                                    <div>
+                                        <span>
+                                            <strong>Category: </strong>
+                                        </span>
+                                        <span t-field="doc.category"/>
+                                    </div>
+                                    <div>
+                                        <span>
+                                            <strong>Subject Line: </strong>
+                                        </span>
+                                        <span t-field="doc.subject"/>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <span>
+                                        <table class="table" style="text-align: left; margin-right:15px;margin-left:15px; border-collapse: collapse;" border="0" cellpadding="0" cellspacing="0" padding="0" margin="0">
+                                              <thead>
+                                                <tr>
+                                                  <th>
+                                                    <span>Reponsible Team</span>
+                                                  </th>
+                                                </tr>
+                                              </thead>
+                                              <tbody>
+                                                <tr t-foreach="doc.responsible_team_ids" t-as="table_line">
+                                                  <td>
+                                                    <span t-field="table_line.display_name"/>
+                                                  </td>
+                                                </tr>
+                                              </tbody>
+                                        </table>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                    <span> </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-5">
+                                    <h3><strong>Initiator</strong></h3>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4">
+                                    <span>
+                                        <strong>Originator: </strong>
+                                    </span>
+                                    <span t-field="doc.originator_id"/>
+                                </div>
+                                <div class="col-4">
+                                    <span>
+                                        <strong>Date Initiated: </strong>
+                                    </span>
+                                    <span t-field="doc.date_initiated" t-options-widget="&quot;date&quot;"/>
+                                </div>
+                                <div class="col-4">
+                                    <span>
+                                        <strong>Source: </strong>
+                                    </span>
+                                    <span t-field="doc.source"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4">
+                                    <span>
+                                        <strong>Responsible Manager: </strong>
+                                    </span>
+                                    <span t-field="doc.responsible_department_head_id"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4">
+                                </div>
+                                <div class="col-4">
+                                    <span>
+                                        <strong>Target Completion Date: </strong>
+                                    </span>
+                                    <span t-field="doc.date_due" t-options-widget="&quot;date&quot;"/>
+                                </div>
+                                <div class="col-4">
+                                    <span>
+                                        <strong>Customer CAR Number: </strong>
+                                    </span>
+                                    <span t-field="doc.customer_car_reference"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4">
+                                </div>
+                                <div class="col-4">
+                                    <span>
+                                        <strong>Close Date: </strong>
+                                    </span>
+                                    <span t-field="doc.date_close" t-options-widget="&quot;date&quot;"/>
+                                </div>
+                                <div class="col-4">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                    <span> </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div style="margin-right:15px;margin-left:15px">
+                                    <h3><strong>Problem</strong></h3>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div style="margin-right:15px;margin-left:15px">
+                                    <span t-field="doc.description"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                    <span> </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div style="margin-right:15px;margin-left:15px">
+                                    <h3><strong>Containment Action</strong></h3>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div style="margin-right:15px;margin-left:15px">
+                                    <span t-field="doc.containment_action"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                    <span> </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div style="margin-right:15px;margin-left:15px">
+                                    <h3><strong>Define Root Cause(s)</strong></h3>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div style="margin-right:15px;margin-left:15px">
+                                    <span t-field="doc.define_root_causes"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                    <span> </span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                    <span> </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div style="margin-right:15px;margin-left:15px">
+                                    <h3><strong>Corrective Actions</strong></h3>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <table class="table report_border table-striped condensedtable" style="text-align: left; margin-right:15px; margin-left:15px; border-collapse: collapse;" border="0" cellpadding="0" cellspacing="0" padding="0" margin="0">
+                                    <thead>
+                                         <th>
+                                            <span>Title</span>
+                                         </th>
+                                         <th>
+                                             <span>Responsible Employee</span>
+                                         </th>
+                                         <th>
+                                             <span>Description</span>
+                                         </th>
+                                        <th>
+                                             <span>Due Date</span>
+                                         </th>
+                                        <th>
+                                             <span>Date Complete</span>
+                                         </th>
+                                     </thead>
+                                     <tbody>
+                                        <tr t-foreach="doc.car_action_ids" t-as="table_row" border-color="black" border="solid-thin">
+                                            <td>
+                                                <span t-field="table_row.name"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="table_row.responsible_employee_id"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="table_row.description"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="table_row.due_date" t-options-widget="&quot;date&quot;"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="table_row.date_complete" t-options-widget="&quot;date&quot;"/>
+                                            </td>
+                                        </tr>
+                                     </tbody>
+                                 </table>
+                            </div>
+                            <div class="row">
+                                <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                    <span> </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div style="margin-right:15px;margin-left:15px">
+                                    <h3><strong>Recurrence Prevention</strong></h3>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div style="margin-right:15px;margin-left:15px">
+                                    <span t-field="doc.recurrence_prevention"/>
+                                    <br/>
+                                </div>
+                            </div>
+                        </div>
+                      </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

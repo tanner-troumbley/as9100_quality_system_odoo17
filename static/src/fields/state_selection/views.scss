@@ -1,0 +1,10 @@
+.o_status {
+
+    &.o_status_yellow {
+        background-color: map-get($theme-colors, "warning");
+    }
+
+    &.o_status_blue {
+        background-color: map-get($theme-colors, "info");
+    }
+}

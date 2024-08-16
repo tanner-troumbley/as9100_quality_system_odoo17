@@ -1,0 +1,23 @@
+<odoo>
+    <data>
+        <record id="stock_picking_view_form_inherit_AS9100_quality" model="ir.ui.view">
+            <field name="name">stock.picking.view.form.inherit.AS9100_quality</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="quality_control.stock_picking_view_form_inherit_quality"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='button_quality_alert']" position="replace"/>
+                <xpath expr="//button[@name='open_quality_alert_picking']" position="replace">
+                    <button name="open_nrc_report_picking" groups="quality.group_quality_user" type="object" class="oe_stat_button" icon="fa-bell" invisible="ncr_report_count == 0">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="ncr_report_count"/>
+                            </span>
+                            <span class="o_stat_text">Non-Conformance Report</span>
+                        </div>
+                    </button>
+                    <button name="open_nrc_report_picking" groups="quality.group_quality_user" type="object" string="Create NCR" class="oe_stat_button" icon="fa-bell" invisible="ncr_report_count != 0"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

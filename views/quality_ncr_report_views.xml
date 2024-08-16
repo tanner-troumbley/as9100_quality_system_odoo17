@@ -1,0 +1,255 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="quality_ncr_report_list">
+            <field name="name">quality.ncr.report.list</field>
+            <field name="model">quality.ncr.report</field>
+            <field name="arch" type="xml">
+                <tree decoration-primary="state == 'open'"
+                      decoration-warning="state == 'hold'"
+                      decoration-success="state == 'closed'"
+                      decoration-danger="state == 'reconvene'"
+                      decoration-info="state == 'draft'">
+                    <field name="parent_id" optional="hide"/>
+                    <field name="name"/>
+                    <field name="description"/>
+                    <field name="analytic_distribution" widget="analytic_distribution"/>
+                    <field name="project_manager_ids" widget="many2many_tags_avatar"/>
+                    <field name="date_open"/>
+                    <field name="state" widget="badge"
+                           decoration-primary="state == 'open'"
+                           decoration-warning="state == 'hold'"
+                           decoration-success="state == 'closed'"
+                           decoration-danger="state == 'reconvene'"
+                           decoration-info="state == 'draft'"/>
+                    <field name="days_open"/>
+                    <field name="ncr_action_ids" widget="many2many_tags" optional="hide"/>
+                    <field name="product_id"/>
+                    <field name="classification"/>
+                    <field name="disposition"/>
+                    <field name="currency_id" invisible="True"/>
+                    <field name="total_cost" sum="Total Cost" widget="monetary"/>
+                    <field name="child_ids" optional="hide"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="quality_ncr_report_form">
+            <field name="name">quality.ncr.report.form</field>
+            <field name="model">quality.ncr.report</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="state" widget="statusbar" string="State" statusbar_visible="draft,open,closed" readonly="True"/>
+                        <button name="open_ncr_report" string="Open" type="object" invisible="state != 'draft' or quality_member_check != True or name == 'New'" groups="quality.group_quality_user"/>
+                        <button name="close_ncr_report" string="Close" type="object" invisible="state != 'open' or quality_member_check != True and name != 'New'" groups="quality.group_quality_user"/>
+                        <button name="open_ncr_report" string="Re-open" type="object" invisible="state in ('open','draft') or quality_member_check != True and name != 'New'" groups="quality.group_quality_manager"/>
+                        <button name="reconvene_ncr_report" string="Reconvene" type="object" invisible="state != 'open' or quality_member_check != True and name != 'New'" groups="quality.group_quality_user"/>
+                        <button name="reset_to_draft" string="Reset To New" type="object" invisible="state in ('closed', 'draft') or quality_member_check != True and name != 'New'" groups="quality.group_quality_user"/>
+                    </header>
+                    <sheet>
+                        <widget name="web_ribbon" title="on Hold" bg_color="text-bg-warning" invisible="state != 'hold'"/>
+                        <widget name="web_ribbon" title="Closed" bg_color="text-bg-success" invisible="state != 'closed'"/>
+                        <widget name="web_ribbon" title="Reconvene" bg_color="text-bg-danger" invisible="state != 'reconvene'"/>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_parent" string="Parent Report" type="object" icon="fa-inbox" class="oe_stat_button" invisible="parent_id == False"/>
+                            <button class="oe_stat_button" type="object" name="action_view_children" string="Create Children Report" icon="fa-umbrella" invisible="count_child_ids != 0"/>
+                            <button class="oe_stat_button" type="object" name="action_view_children" string="Children Report" icon="fa-umbrella" invisible="count_child_ids == 0">
+                                <field name="count_child_ids" string="Children Reports" widget="statinfo"/>
+                            </button>
+                            <button class="oe_stat_button" type="object" name="action_view_car_reports" icon="fa-briefcase" invisible="count_car_report_ids == 0">
+                                <field name="count_car_report_ids" string="Corrective Action Reports" widget="statinfo"/>
+                            </button>
+                            <button name="%(AS9100_quality.quality_car_report_wizard_action)d" icon="fa-briefcase" type="action" string="Create CAR" class='oe_stat_button' context="{'default_analytic_distribution': analytic_distribution, 'default_ncr_report_id': id}" groups="quality.group_quality_user" invisible="count_car_report_ids != 0"/>                            <button name="action_view_production_order" string="Manufacturing" type="object" icon="fa-wrench" class="oe_stat_button" invisible="production_id == False"/>
+                            <button name="action_view_workorder" string="Work Order" type="object" icon="fa-cube" class="oe_stat_button" invisible="workorder_id == False"/>
+                            <button name="action_view_quality_check" string="Quality Check" type="object" icon="fa-check-square-o" class="oe_stat_button" invisible="check_id == False"/>
+                            <button name="action_preview_ncr_report" string="Preview" type="object" icon="fa-globe" class="oe_stat_button" invisible="state == 'closed'"/>
+
+                        </div>
+                        <div name="on_hold_message" style="text-align: center; color: orange" colspan="3" invisible="state != 'hold'">
+                            <p>Reason for Hold:
+                                <field name="reason_for_hold" readonly="1"/>
+                            </p>
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1" string="NCR Number"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="company_id" invisible="True"/>
+                                <field name="parent_id" invisible="True"/>
+                                <field name="production_id" invisible="True"/>
+                                <field name="quality_member_check" invisible="True"/>
+                                <field name="workorder_id" invisible="True"/>
+                                <field name="check_id" invisible="True"/>
+                                <field name="create_uid" string="Originator" readonly="True" widget="many2one_avatar_user"/>
+                                <field name="date_open" readonly="True"/>
+                                <field name="date_close" readonly="True"/>
+                                <field name="days_open"/>
+                            </group>
+                            <group>
+                                <field name="analytic_distribution" required="True" readonly="state in ('hold', 'closed')" widget="analytic_distribution" options="{'no_create': True, 'no_create_edit': True}"/>
+                                <field name="project_manager_ids" widget="many2many_tags_avatar" readonly="True"/>
+                                <field name="responsible_engineer_id" required="True" readonly="state in ('hold', 'closed')" options="{'no_create': True, 'no_create_edit': True}" widget="many2one_avatar_employee"/>
+                                <field name="picking_id" readonly="state in ('hold', 'closed')"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Event Information" readonly="quality_member_check != True and name != 'New'">
+                                <group>
+                                    <group>
+                                        <field name="responsible_employee_id" readonly="state in ('hold', 'closed') or quality_member_check != True and name != 'New'" options="{'no_create': True, 'no_create_edit': True}" widget="many2one_avatar_employee"/>
+                                        <field name="problem_type" required="True" readonly="state in ('hold', 'closed') or quality_member_check != True and name != 'New'"/>
+                                        <field name="operational_area" required="True" readonly="state in ('hold', 'closed') or quality_member_check != True and name != 'New'"/>
+                                        <field name="partner_id" required="problem_type == 'supplier'" readonly="state in ('hold', 'closed') or quality_member_check != True and name != 'New'" options="{'no_create': True, 'no_create_edit': True}" widget="many2one_avatar"/>
+                                    </group>
+                                    <group>
+                                        <field name="map_number" readonly="state in ('hold', 'closed') or quality_member_check != True and name != 'New'"/>
+                                        <field name="description" widget="text" required="True" readonly="state in ('hold', 'closed') or quality_member_check != True and name != 'New'"/>
+                                        <field name="expected_condition" readonly="state in ('hold', 'closed') or quality_member_check != True and name != 'New'"/>
+                                    </group>
+                                    <group name="rma" string="RMA Data" invisible="problem_type != 'rma'">
+                                        <field name="rma_detailed_issue" readonly="state in ('hold', 'closed') or quality_member_check != True and name != 'New'"/>
+                                        <field name="rma_expected_action" readonly="state in ('hold', 'closed') or quality_member_check != True and name != 'New'"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Product Information" readonly="quality_member_check != True and name != 'New' ">
+                                <group>
+                                    <group>
+                                        <field name="product_tmpl_id" invisible="True"/>
+                                        <field name="product_id" readonly="state in ('hold', 'closed') or quality_member_check != True and name != 'New'" options="{'no_create': True, 'no_create_edit': True}" required="True"/>
+                                        <field name="lot_ids" widget="many2many_tags" readonly="state in ('hold', 'closed') or quality_member_check != True and name != 'New'" options="{'no_create': True, 'no_create_edit': True}"/>
+                                        <field name="workcenter_id" readonly="state in ('hold', 'closed') or quality_member_check != True and name != 'New'" options="{'no_create': True, 'no_create_edit': True}"/>
+                                        <field name="purchase_order_id" readonly="state in ('hold', 'closed') or quality_member_check != True and name != 'New'" options="{'no_create': True, 'no_create_edit': True}"/>
+                                    </group>
+                                    <group>
+                                        <field name="quantity" required="True" readonly="state in ('hold', 'closed') or quality_member_check != True and name != 'New'"/>
+                                        <field name="currency_id" invisible="True" readonly="state in ('hold', 'closed') or quality_member_check != True and name != 'New'"/>
+                                        <field name="product_cost" widget="monetary"/>
+                                        <field name="total_cost" widget="monetary"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Disposition" readonly="quality_member_check != True and name != 'New'">
+                                <group>
+                                    <group>
+                                        <field name="classification" readonly="state in ('hold', 'closed')"/>
+                                        <field name="disposition" readonly="state in ('hold', 'closed')"/>
+                                    </group>
+                                    <group>
+                                        <field name="justification" readonly="state in ('hold', 'closed')"/>
+                                    </group>
+                                    <field name="disposition_text" widget="text" readonly="state in ('hold', 'closed')" placeholder="Description" nolabel="1"/>
+                                </group>
+                            </page>
+                            <page string="Approvals">
+                                <field name="ncr_approval_ids" readonly="state in ('hold', 'closed')">
+                                    <tree editable="bottom">
+                                        <field name="state" column_invisible="True"/>
+                                        <field name="approval_type" readonly="state in ('hold', 'closed')"/>
+                                        <field name="is_approved" widget="boolean_toggle" readonly="state in ('hold', 'closed')"/>
+                                        <field name="approved_by_id" readonly="True" widget="many2one_avatar_employee"/>
+                                    </tree>
+                                </field>
+                                <field name="reason_for_hold" readonly="state in ('hold', 'closed')" widget="text" placeholder="Reason For Hold"/>
+                            </page>
+                            <page string="NCR Actions">
+                                <field name="ncr_action_ids" readonly="state in ('hold', 'closed')" context="{'default_analytic_distribution': analytic_distribution}">
+                                    <tree decoration-danger="state == 'blocked'" decoration-warning="state == 'warning'" decoration-info="state == 'info'" decoration-success="state == 'done'">
+                                        <field name="name"/>
+                                        <field name="short_description"/>
+                                        <field name="responsible_department_id"/>
+                                        <field name="state" widget="badge" decoration-danger="state == 'blocked'" decoration-warning="state == 'warning'" decoration-info="state == 'info'" decoration-success="state == 'done'"/>
+                                        <field name="days_open"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="quality_ncr_report_search">
+            <field name="name">quality.ncr.report.search</field>
+            <field name="model">quality.ncr.report</field>
+            <field name="priority" eval="15"/>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="parent_id"/>
+                    <field name="analytic_account_ids"/>
+                    <field name="product_id"/>
+                    <field name="lot_ids" widget="many2many_tags"/>
+                    <field name="purchase_order_id"/>
+                    <field name="workorder_id" string="Operation"
+                           filter_domain="['|', '|', ('picking_id', 'ilike', self), ('production_id', 'ilike', self), ('workorder_id', 'ilike', self)]"/>
+                    <filter string="New" name="new" domain="[('state', '=', 'draft')]"/>
+                    <filter string="Open" name="open" domain="[('state', '=', 'open')]"/>
+                    <filter string="On Hold" name="on_hold" domain="[('state', '=', 'hold')]"/>
+                    <filter string="Closed" name="closed" domain="[('state', '=', 'closed')]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="State" name="state" context="{'group_by':'state'}"/>
+                        <filter string="Analytic Account" name="analytic_account" context="{'group_by': 'analytic_account_ids'}"/>
+                        <filter string="Partner" name="supplier" context="{'group_by': 'partner_id'}"/>
+                        <filter string="Disposition" name="disposition" context="{'group_by': 'disposition'}"/>
+                        <filter string="Parent NCR" name="parent_ncr" context="{'group_by': 'parent_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="quality_ncr_report_pivot">
+            <field name="name">quality.ncr.report.pivot</field>
+            <field name="model">quality.ncr.report</field>
+            <field name="priority" eval="20"/>
+            <field name="arch" type="xml">
+                <pivot string="Non-Conformance Report">
+                    <field name="analytic_account_ids" type="row"/>
+                    <field name="total_cost" type="measure"/>
+                    <field name="date_open" interval="month" type="col"/>
+                    <field name="state" type="col"/>
+                    <field name="problem_type" type="col"/>
+                </pivot>
+            </field>
+        </record>
+
+
+        <record id="quality_ncr_report_action_window" model="ir.actions.act_window">
+            <field name="name">Non-Conformance Reports</field>
+            <field name="res_model">quality.ncr.report</field>
+            <field name="view_mode">tree,pivot,form</field>
+            <field name="search_view_id" ref="quality_ncr_report_search"/>
+            <field name="view_id" ref="quality_ncr_report_list"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No Non-Conformance Reports
+                </p>
+            </field>
+        </record>
+
+        <record id="quality_ncr_report_action_report" model="ir.actions.act_window">
+            <field name="name">Non-Conformance Reports</field>
+            <field name="res_model">quality.ncr.report</field>
+            <field name="view_mode">pivot,graph,kanban,tree,form</field>
+            <field name="search_view_id" ref="quality_ncr_report_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No Non-Conformance Reports
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="quality_control.menu_quality_alert" name="Non-Conformance Report" parent="quality_control.menu_quality_control" groups=""
+                  action="quality_ncr_report_action_window" sequence="20"/>
+        <menuitem id="quality_control.menu_quality_alert_report" name="Non-Conformance Report" parent="quality_control.menu_quality_reporting"
+                  action="quality_ncr_report_action_report" sequence="6"/>
+    </data>
+</odoo>

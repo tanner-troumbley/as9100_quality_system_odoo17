@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <record model='ir.ui.view' id='res_partner_ncr_costunization'>
+            <field name='name'>NCR on Contact</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name='arch' type='xml'>
+                <div name="button_box" position="inside">
+                    <button class="oe_stat_button" type="object" name="view_ncr_report_ids" icon="fa-bell" invisible="ncr_report_count == 0">
+                        <field name="ncr_report_count" string="Non-Conformance Reports" widget="statinfo"/>
+                    </button>
+                    <button class="oe_stat_button" type="object" name="view_car_report_ids" icon="fa-briefcase" invisible="car_report_count == 0">
+                        <field name="car_report_count" string="Corrective Action Reports" widget="statinfo"/>
+                    </button>
+                </div>
+            </field>
+        </record>
+
+    </data>
+</odoo>

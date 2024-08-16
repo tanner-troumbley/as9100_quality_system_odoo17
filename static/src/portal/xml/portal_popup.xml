@@ -1,0 +1,39 @@
+<templates xml:space="preserve">
+    <t t-name="AS9100_quality.portal_create_ncr_approval">
+        <form string="Get Approval Type">
+            <p>Select the Approval type you are requesting.</p>
+            <!--            Can't get the context working.-->
+<!--            <code><span t-out="approval_type_list"/></code>-->
+<!--            <select id="approval_type_input" required="True" t-attf-class="form-control select_box_test" name="approval_type">-->
+<!--                <t t-foreach="approval_type_list" t-as="approval_type" t-key="approval_type.id">-->
+<!--                    <option t-att-value="approval_type.value">-->
+<!--                        <t t-out="approval_type.name"/>-->
+<!--                    </option>-->
+<!--                </t>-->
+<!--            </select>-->
+            <select id="approval_type_input_manual" required="True" t-attf-class="form-control select_box_test" name="approval_type">
+                <option value="assurance">
+                    Quality Assurance
+                </option>
+                <option value="pm">
+                    Program Manager
+                </option>
+                <option value="re">
+                    RE
+                </option>
+                <option value="pm_re">
+                    PM/RE
+                </option>
+                <option value="financial">
+                    Financial
+                </option>
+                <option value="rework">
+                    Rework QA
+                </option>
+                <option value="operations">
+                    Operations
+                </option>
+                </select>
+        </form>
+    </t>
+</templates>

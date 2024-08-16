@@ -1,0 +1,297 @@
+<odoo>
+    <data>
+        <record model="ir.actions.report" id="quality_ncr_report_report">
+            <field name="name">Non-Conformance Report</field>
+            <field name="model">quality.ncr.report</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">AS9100_quality.report_quality_ncr_report</field>
+            <field name="print_report_name">'Non-Conformance Report - %s' % (object.name)</field>
+            <field name="attachment">'Non-Conformance Report - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="AS9100_quality.model_quality_ncr_report"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_quality_ncr_report">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="oe_structure">
+                                <div class="row">
+                                    <h2>Non-Conformance Report:
+                                        <span t-field="doc.name"/>
+                                    </h2>
+                                    <div class="col-5" t-if="doc.child_ids">
+                                        <span>
+                                            <table class="table report_border table-striped condensedtable" style="text-align: left; width: 650px; border-collapse: collapse;" border="0" cellpadding="0" cellspacing="0" padding="0" margin="0">
+                                                <thead>
+                                                    <th>
+                                                        <span>Child NCR</span>
+                                                    </th>
+                                                    <th>
+                                                        <span>Disposition</span>
+                                                    </th>
+                                                    <th>
+                                                        <span>State</span>
+                                                    </th>
+                                                </thead>
+                                                <tbody>
+                                                    <tr t-foreach="doc.child_ids" t-as="table_row" border-color="black" border="solid-thin">
+                                                        <td>
+                                                            <span t-field="table_row.name"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-field="table_row.disposition"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-field="table_row.state"/>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                        <span> </span>
+                                    </div>
+                                </div>
+                                <div class="row" t-if="doc.parent_id">
+                                    <div class="col-5">
+                                        <span>
+                                            <strong>Parent NCR:</strong>
+                                            <br/>
+                                        </span>
+                                        <span t-field="doc.parent_id"/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>
+                                            <br/>
+                                            <strong>Originator:</strong>
+                                            <br/>
+                                        </span>
+                                        <span t-field="doc.create_uid"/>
+                                        <br/>
+                                    </div>
+                                    <div class="col-5">
+                                        <span>
+                                            <br/>
+                                            <strong>Date Created:</strong>
+                                            <br/>
+                                        </span>
+                                        <span t-field="doc.create_date" t-options-widget="&quot;date&quot;"/>
+                                        <br/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5" t-if="doc.project_manager_ids">
+                                        <span>
+                                            <br/>
+                                            <strong>Project Managers:</strong>
+                                            <br/>
+                                        </span>
+                                        <t t-foreach="doc.project_manager_ids" t-as="project_manager">
+                                            <span t-field="project_manager.name"/>
+                                            <br/>
+                                        </t>
+                                    </div>
+                                    <div class="col-5" t-if="date_close">
+                                        <span>
+                                            <br/>
+                                            <strong>Date Closed:</strong>
+                                            <br/>
+                                        </span>
+                                        <span t-field="doc.date_close" t-options-widget="&quot;date&quot;"/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>
+                                            <br/>
+                                            <strong>Analytic Accounts:</strong>
+                                            <br/>
+                                        </span>
+                                        <t t-foreach="doc.analytic_account_ids" t-as="aa">
+                                            <span t-field="aa.display_name"/>
+                                            <br/>
+                                        </t>
+                                    </div>
+                                    <div class="col-5">
+                                        <span>
+                                            <br/>
+                                            <strong>Problem Type:</strong>
+                                            <br/>
+                                        </span>
+                                        <span t-field="doc.problem_type"/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>
+                                            <br/>
+                                            <strong>Problem Description:</strong>
+                                            <br/>
+                                        </span>
+                                        <span t-field="doc.description"/>
+                                    </div>
+                                    <div class="col-5">
+                                        <span>
+                                            <br/>
+                                            <strong>Operational Area:</strong>
+                                            <br/>
+                                        </span>
+                                        <span t-field="doc.operational_area"/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <t t-if="doc.partner_id">
+                                        <div class="col-5">
+                                            <span>
+                                                <br/>
+                                                <strong>Vendor:</strong>
+                                                <br/>
+                                            </span>
+                                            <span t-field="doc.partner_id"/>
+                                        </div>
+                                    </t>
+                                    <t t-if="doc.purchase_order_id">
+                                        <div class="col-5">
+                                            <span>
+                                                <br/>
+                                                <strong>Purchase Order:</strong>
+                                                <br/>
+                                            </span>
+                                            <span t-field="doc.purchase_order_id"/>
+                                        </div>
+                                    </t>
+                                </div>
+                                <br/>
+                                <div class="row">
+                                    <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                        <span> </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>
+                                            <br/>
+                                            <strong>Product:</strong>
+                                            <br/>
+                                        </span>
+                                        <span t-field="doc.product_id"/>
+                                    </div>
+                                    <div class="col-5">
+                                        <span>
+                                            <br/>
+                                            <strong>Quantity:</strong>
+                                            <br/>
+                                        </span>
+                                        <span t-field="doc.quantity"/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <span>
+                                        <br/>
+                                        <strong>Serial/Lot Numbers:</strong>
+                                        <br/>
+                                    </span>
+                                    <span t-field="doc.lot_ids"/>
+                                </div>
+                                <br/>
+                                <div class="row">
+                                    <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                        <span> </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>
+                                            <strong>Classification:</strong>
+                                            <br/>
+                                        </span>
+                                        <span t-field="doc.classification"/>
+                                    </div>
+                                    <div class="col-5">
+                                        <span>
+                                            <strong>Justification:</strong>
+                                            <br/>
+                                        </span>
+                                        <span t-field="doc.justification"/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <span>
+                                            <br/>
+                                            <strong>Disposition:</strong>
+                                            <br/>
+                                        </span>
+                                        <span t-field="doc.disposition"/>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="row">
+                                    <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                        <span> </span>
+                                    </div>
+                                </div>
+                                <table class="table table-sm mt-4">
+                                    <thead>
+                                        <th>
+                                            <span>Approval Type</span>
+                                        </th>
+                                        <th class="text-center">
+                                            <span>Approved</span>
+                                        </th>
+                                        <th>
+                                            <span>Approved By:</span>
+                                        </th>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="doc.ncr_approval_ids" t-as="table_row" border-color="black" border="solid-thin">
+                                            <td>
+                                                <span t-field="table_row.approval_type"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span>
+                                                    <input type="checkbox" t-att-checked="table_row.is_approved"/>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span t-field="table_row.approved_by_id"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div t-attf-class="footer o_standard_footer o_company_#{doc.company_id.id}_layout">
+                            <div class="text-center" style="border-top: 1px solid black;">
+                                <ul class="list-inline mb4">
+                                    <div t-field="doc.company_id.report_footer"/>
+                                </ul>
+
+                                <div t-if="report_type == 'pdf'" class="text-muted">
+                                    Page:
+                                    <span class="page"/>
+                                    /
+                                    <span class="topage"/>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-muted">TMP-0001</span>
+
+                                </div>
+                                <div t-if="report_type == 'pdf' and display_name_in_footer" class="text-muted">
+                                    <span t-out="doc.name">(document name)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

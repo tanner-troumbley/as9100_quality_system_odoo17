@@ -1,0 +1,54 @@
+<odoo>
+    <data noupdate="1">
+        <record id="AS9100_quality.group_quality_viewer" model="res.groups">
+            <field name="name">Viewer</field>
+            <field name="category_id" ref="base.module_category_manufacturing_quality"/>
+            <field name="implied_ids" eval="[(4, ref('viewer_groups.view_manufacturing'))]"/>
+        </record>
+
+        <record id="quality.group_quality_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="category_id" ref="base.module_category_manufacturing_quality"/>
+            <field name="implied_ids" eval="[(4, ref('AS9100_quality.group_quality_viewer'))]"/>
+            <field name="comment">The quality user uses the quality process</field>
+        </record>
+
+        <record id="stock.group_stock_user" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('AS9100_quality.group_quality_viewer'))]"/>
+        </record>
+
+        <record id="portal_ncr_report_user_rule" model="ir.rule">
+            <field name="name">Portal Non-Conformance Reports</field>
+            <field name="model_id" ref="AS9100_quality.model_quality_ncr_report"/>
+            <field name="domain_force">[("state", "!=", "closed"), "|", "|", "|", "|", ("responsible_employee_id.department_id", "=", user.employee_id.department_id.id), ("responsible_engineer_id", "=", user.employee_id.id), ("ncr_action_ids.responsible_employee_id", "=",
+                user.employee_id.id), ("partner_id", "=", user.commercial_partner_id.id), ('create_uid', '=', user.id)]
+            </field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_create" eval="0"/>
+        </record>
+
+        <record id="portal_ncr_action_rule" model="ir.rule">
+            <field name="name">Portal Non-Conformance Actions</field>
+            <field name="model_id" ref="AS9100_quality.model_quality_ncr_action"/>
+            <field name="domain_force">["|", "|", ("responsible_employee_id", "=", user.employee_id.id), ("responsible_department_id", "=", user.employee_id.department_id.id), ("create_uid", "=", user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <record id="mrp_subcontracting.stock_lot_subcontracting_rule" model="ir.rule">
+            <field name="name">Stock Lot Subcontractor</field>
+            <field name="model_id" ref="stock.model_stock_lot"/>
+            <field name="domain_force">[
+                '|',
+                '|',
+                ('product_id', 'in', user.partner_id.commercial_partner_id.bom_ids.product_id.ids),
+                ('product_id', 'in', user.partner_id.commercial_partner_id.bom_ids.product_tmpl_id.product_variant_ids.ids),
+                ('product_id', 'in', user.partner_id.commercial_partner_id.bom_ids.bom_line_ids.product_id.ids),
+                ]
+            </field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="0"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,22 @@
+<odoo>
+    <data>
+        <record id="mrp_workorder_view_form_inherit_AS9100_quality" model="ir.ui.view">
+            <field name="name">mrp.workorder.view.form.inherit.AS9100_quality</field>
+            <field name="model">mrp.workorder</field>
+            <field name="inherit_id" ref="mrp.mrp_production_workorder_form_view_inherit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button name="view_nrc_reports" type="object" class="oe_stat_button" icon="fa-bell" invisible="ncr_report_count == 0">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="ncr_report_count"/>
+                            </span>
+                            <span class="o_stat_text">Non-Conformance Reports</span>
+                        </div>
+                    </button>
+                    <button name="view_nrc_reports" type="object" class="oe_stat_button" string="Non-Conformance Report" icon="fa-bell" invisible="ncr_report_count != 0"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,159 @@
+<odoo>
+    <data>
+        
+        <record model="ir.actions.report" id="quality_ncr_action_report">
+            <field name="name">Non-Conformance Action Report</field>
+            <field name="model">quality.ncr.action</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">AS9100_quality.report_quality_ncr_action</field>
+            <field name="print_report_name">'Non-Conformance Action Report - %s' % (object.name)</field>
+            <field name="attachment">'Non-Conformance Action Report - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="AS9100_quality.model_quality_ncr_action"/>
+            <field name="binding_type">report</field>
+        </record>
+            
+        <template id="report_quality_ncr_action">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                          <div class="oe_structure">
+                            <div class="row">
+                                <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                    <span> </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-10">
+                                <h2>Non-Conformance Action Report</h2>
+                                <h4>NCR Action Number: <span t-field="doc.name"/></h4>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                    <span> </span>
+                                </div>
+                            </div>
+                            <div>
+                            <div class="row">
+                                <div class="col-5">
+                                    <span>
+                                        <strong>NCR Number:</strong>
+                                        <br/>
+                                    </span>
+                                    <span t-field="doc.ncr_report_id"/>
+                                </div>
+                                <div class="col-5">
+                                    <span>
+                                        <strong>Project Manager:</strong>
+                                        <br/>
+                                    </span>
+                                    <span t-field="doc.project_manager_id"/>
+                                    <br/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-5">
+                                    <span>
+                                        <br/>
+                                        <strong>Responsible Department Head:</strong>
+                                        <br/>
+                                    </span>
+                                    <span t-field="doc.responsible_department_head_id"/>
+                                    <br/>
+                                </div>
+                                <div class="col-5">
+                                    <span>
+                                        <br/>
+                                        <strong>Responsible Employee:</strong>
+                                        <br/>
+                                    </span>
+                                    <span t-field="doc.responsible_employee_id"/>
+                                    <br/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-5">
+                                    <span>
+                                        <br/>
+                                        <strong>Product</strong>
+                                        <br/>
+                                    </span>
+                                    <span t-field="doc.ncr_report_id.product_id"/>
+                                </div>
+                                <div class="col-5">
+                                    <span>
+                                        <br/>
+                                        <strong>Product Description:</strong>
+                                        <br/>
+                                    </span>
+                                    <span t-field="doc.ncr_report_id.product_description"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-5">
+                                    <span>
+                                        <br/>
+                                        <strong>Serial/Lot Number(s):</strong>
+                                        <br/>
+                                    </span>
+                                    <span t-field="doc.ncr_report_id.lot_id"/>
+                                </div>
+                              </div>
+                            <div class="row">
+                                <div class="col-5">
+                                    <span>
+                                        <br/>
+                                        <strong>Problem Description:</strong>
+                                        <br/>
+                                    </span>
+                                    <span t-field="doc.ncr_report_id.problem_description"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                    <span> </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-5">
+                                    <span>
+                                        <strong>Work Instructions:</strong>
+                                        <br/>
+                                    </span>
+                                    <span t-field="doc.work_instructions"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-5">
+                                    <span>
+                                        <br/>
+                                        <strong>Work Completed:</strong>
+                                        <br/>
+                                    </span>
+                                    <span t-field="doc.work_completed"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col small" style="margin-right:15px;margin-left:15px;background-color:#EFEFEF">
+                                    <span> </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-5">
+                                    <span>
+                                        <strong>Suggested Actions:</strong>
+                                        <br/>
+                                    </span>
+                                    <span t-field="doc.expected_condition"/>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                      </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

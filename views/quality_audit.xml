@@ -1,0 +1,108 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="quality_audit_list">
+            <field name="name">quality.audit.list</field>
+            <field name="model">quality.audit</field>
+            <field name="arch" type="xml">
+                <tree decoration-danger="state == 'blocked'" decoration-info="state == 'open'" decoration-success="state == 'done'">
+                    <field name="name"/>
+                    <field name="description" optional="show"/>
+                    <field name="partner_id" optional="show" widget="many2one_avatar_partner"/>
+                    <field name="auditor_employee_id" optional="show" widget="many2one_avatar_employee"/>
+                    <field name="reason" optional="show"/>
+                    <field name="type" optional="show"/>
+                    <field name="date_due" widget="remaining_days" invisible="state == 'close'"/>
+                    <field name="state" widget="badge"
+                           decoration-danger="state == 'late'"
+                           decoration-muted="state == 'open'"
+                           decoration-success="state == 'close'"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="quality_audit_form">
+            <field name="name">quality.audit.form</field>
+            <field name="model">quality.audit</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="state" widget="statusbar" string="State" readonly="True"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="True"/>
+                            </h1>
+                            <field name="subject" required="True" nolabel="1" placeholder="Subject"/>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="partner_id" required="True" widget="many2one_avatar"/>
+                                <field name="reason" required="True"/>
+                            </group>
+                            <group>
+                                <field name="auditor_employee_id" required="True" widget="many2one_avatar_employee"/>
+                                <field name="type" required="True"/>
+                                <field name="date_due"/>
+                            </group>
+                            <field name="description" widget="text" nolabel="1" placeholder="Audit Summary"/>
+                        </group>
+                        <notebook>
+                            <page string="Actions">
+                                <field name="line_ids">
+                                    <tree editable="bottom" decoration-danger="state == 'blocked'" decoration-success="state == 'done'">
+                                        <field name="name"/>
+                                        <field name="partner_id" widget="many2one_avatar"/>
+                                        <field name="state" widget="state_selection"/>
+                                        <field name="days_open" invisible="state == 'done' or state =='blocked'" optional="show"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Miscellaneous">
+                                <group>
+                                    <field name="date_open"/>
+                                    <field name="date_close" readonly="True"/>
+                                    <field name="days_open"/>
+                                </group>
+
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="quality_audit_search">
+            <field name="name">quality.audit.search</field>
+            <field name="model">quality.audit</field>
+            <field name="priority" eval="15"/>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="partner_id" string="Auditee"/>
+                    <field name="line_ids" string="Audit Actions"/>
+                    <field name="auditor_employee_id" string="Auditor"/>
+                    <filter string="Late" name="late" domain="[('state', '=', 'late')]"/>
+                    <filter string="Open" name="open" domain="[('state', '=', 'open')]"/>
+                    <filter string="close" name="close" domain="[('state', '=', 'close')]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Auditee" name="group_by_partner_id" context="{'group_by': 'partner_id'}"/>
+                        <filter string="Auditor" name="group_by_auditor_employee_id" context="{'group_by': 'auditor_employee_id'}"/>
+                        <filter string="Type" name="group_by_type" context="{'group_by':'type'}"/>
+                        <filter string="Reason" name="group_by_reason" context="{'group_by':'reason'}"/>
+                        <filter string="State" name="group_by_state" context="{'group_by':'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="quality_audit_action_window">
+            <field name="name">Audits</field>
+            <field name="res_model">quality.audit</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="quality_audit_search"/>
+            <field name="view_id" ref="quality_audit_list"/>
+        </record>
+
+        <menuitem id="menu_quality_audit" name="Audits" parent="quality_control.menu_quality_control" action="AS9100_quality.quality_audit_action_window" groups="AS9100_quality.group_quality_viewer" sequence="35"/>
+    </data>
+</odoo>
